@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MedTrack</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f9ff;
+      color: #333;
+    }
+
+    header {
+      background: #0077b6;
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.8em;
+      font-weight: bold;
+    }
+
+    nav a {
+      color: white;
+      margin-left: 20px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .Main {
+      padding: 100px 40px;
+      text-align: center;
+      background: linear-gradient(to right, #90e0ef, #caf0f8);
+    }
+
+    .Main h1 {
+      font-size: 3em;
+      margin-bottom: 20px;
+      color: #03045e;
+    }
+
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 40px;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      max-width: 280px;
+      text-align: left;
+    }
+
+    .card h3 {
+      color: #0077b6;
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      font-size: 1em;
+      line-height: 1.5;
+    }
+
+    footer {
+      background-color: #0077b6;
+      color: white;
+      text-align: center;
+      padding: 15px 0;
+      margin-top: 60px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="logo">MedTrack</div>
+    <nav>
+      <a href="{{ url_for('login') }}">Login</a>
+      <a href="{{ url_for('signup') }}">Sign Up</a>
+      <a href="{{ url_for('aboutus') }}">About Us</a>
+      <a href="{{ url_for('contactus') }}">Contact Us</a>
+    </nav>
+  </header>
+
+  <section class="Main">
+    <h1>Welcome to Medtrack</h1>
+    <p>Your personal medical tracking companion.</p>
+    <div class="features">
+      <div class="card">
+        <h3>Easy Appointments</h3>
+        <p>Book appointments with doctors in just a few clicks and avoid long queues and waiting times.</p>
+      </div>
+      <div class="card">
+        <h3>Diagnosis Uploads</h3>
+        <p>Upload your medical diagnosis reports online and share them securely with healthcare providers.</p>
+      </div>
+      <div class="card">
+        <h3>Medical History</h3>
+        <p>Access past medical records anytime, anywhere — perfect for consistent, ongoing care.</p>
+      </div>
+      <div class="card">
+        <h3>Secure Platform</h3>
+        <p>Protected by AWS IAM, ensuring that only authorized users can access sensitive medical data.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    &copy; 2025 MedTrack. All rights reserved.
+  </footer>
+</body>
+
+</html>
