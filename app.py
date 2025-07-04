@@ -63,7 +63,7 @@ def publish_to_sns(message, subject="MedTrack Notification"):
         print("SNS not configured, skipping publish.")
 
 # ---------------------------------------
-# Local fallback DB
+# Local fallback DB (commented for now)
 # ---------------------------------------
 # local_db = {
 #     'users': {},
@@ -74,7 +74,7 @@ def publish_to_sns(message, subject="MedTrack Notification"):
 # }
 
 # ---------------------------------------
-# Helper functions
+# DynamoDB table helpers
 # ---------------------------------------
 def get_user_table():
     if dynamodb:
@@ -101,6 +101,9 @@ def get_medical_history_table():
         return dynamodb.Table(MEDICAL_HISTORY_TABLE_NAME)
     return None
 
+# ---------------------------------------
+# Login required decorator
+# ---------------------------------------
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -110,7 +113,7 @@ def login_required(f):
     return decorated_function
 
 # ---------------------------------------
-# Before Request
+# Before request: load logged in user
 # ---------------------------------------
 @app.before_request
 def load_logged_in_user():
@@ -119,7 +122,6 @@ def load_logged_in_user():
     g.user = None
     g.doctor_details = None
     if user_email:
-        # fallback immediately after signup
         g.user = {"email": user_email, "role": user_role}
         if dynamodb:
             user_table = get_user_table()
@@ -133,8 +135,8 @@ def load_logged_in_user():
                         g.doctor_details = doc_resp.get('Item')
             except Exception as e:
                 print(f"Error loading user from DynamoDB: {e}")
-
         else:
+            # fallback from local_db
             # g.user = local_db['users'].get(user_email)
             # if g.user and g.user['role'] == 'doctor':
             #     g.doctor_details = local_db['doctor_details'].get(user_email)
@@ -186,6 +188,7 @@ def signup():
             except Exception as e:
                 print(f"Error saving user to DynamoDB: {e}")
         else:
+            # fallback local_db
             # local_db['users'][email] = user_data
             pass
 
@@ -218,6 +221,7 @@ def login():
         if user and check_password_hash(user['password'], password):
             session.clear()
             session['user_email'] = email
+            session['user_role'] = user['role']  # key fix
             return redirect(url_for('doctor_dashboard' if user['role'] == 'doctor' else 'patient_dashboard'))
         else:
             flash("Invalid credentials")
@@ -256,7 +260,6 @@ def save_patient_details():
     else:
         # local_db['patient_details'][g.user['email']] = patient_data
         pass
-
     return redirect(url_for('patient_dashboard'))
 
 @app.route('/appointment_dashboard')
@@ -279,6 +282,7 @@ def appointment_dashboard():
         except Exception as e:
             print(f"Error fetching doctors: {e}")
     else:
+        # fallback local_db
         # doctors = [u for u in local_db['users'].values() if u['role'] == 'doctor']
         # for doc in doctors:
         #     details = local_db['doctor_details'].get(doc['email'])
@@ -301,7 +305,6 @@ def submit_appointment():
         'problem': request.form['problem'],
         'status': 'Scheduled'
     }
-
     if dynamodb:
         table = get_appointments_table()
         try:
@@ -313,9 +316,9 @@ def submit_appointment():
         except Exception as e:
             print(f"Error saving appointment to DynamoDB: {e}")
     else:
+        # fallback local_db
         # local_db['appointments'].setdefault(g.user['email'], []).append(appointment_data)
         pass
-
     return redirect(url_for('patient_dashboard'))
 
 @app.route('/save-doctor-details', methods=['POST'])
@@ -332,9 +335,9 @@ def save_doctor_details():
         table = get_doctor_details_table()
         table.put_item(Item=doctor_data)
     else:
+        # fallback local_db
         # local_db['doctor_details'][g.user['email']] = doctor_data
         pass
-
     return redirect(url_for('doctor_dashboard'))
 
 @app.route('/doctor_details')
@@ -368,6 +371,7 @@ def view_patient(patient_email):
         except Exception as e:
             print(f"Error fetching patient data: {e}")
     else:
+        # fallback local_db
         # patient = local_db['users'].get(patient_email)
         # patient_details = local_db['patient_details'].get(patient_email)
         # history = [h for h in local_db['medical_history'].values() if h['email'] == patient_email]
@@ -390,6 +394,7 @@ def doctor_dashboard():
         except Exception as e:
             print(f"Error fetching appointments: {e}")
     else:
+        # fallback local_db
         # appointments = [
         #     a for patient_appts in local_db['appointments'].values()
         #     for a in patient_appts if a['doctor'] == g.user['name']
@@ -431,6 +436,7 @@ def submit_prescription():
             except Exception as e:
                 print(f"Error submitting prescription: {e}")
         else:
+            # fallback local_db
             # for patient_email, appts in local_db['appointments'].items():
             #     for appt in appts:
             #         if appt['id'] == appt_id:
@@ -444,7 +450,6 @@ def submit_prescription():
             #                 'prescription': prescription
             #             }
             pass
-
     return redirect(url_for('doctor_dashboard'))
 
 @app.route('/patient_dashboard')
@@ -470,6 +475,7 @@ def patient_dashboard():
         except Exception as e:
             print(f"Error loading patient dashboard: {e}")
     else:
+        # fallback local_db
         # appointments = local_db['appointments'].get(g.user['email'], [])
         # patient_details = local_db['patient_details'].get(g.user['email'])
         # history = [h for h in local_db['medical_history'].values() if h['email'] == g.user['email']]
@@ -485,6 +491,8 @@ def aboutus():
 def contactus():
     return render_template('contactus.html')
 
+# ---------------------------------------
+# Run
+# ---------------------------------------
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
-
