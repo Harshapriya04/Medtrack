@@ -187,7 +187,7 @@ def signup():
 
         session.clear()
         session['user_email'] = email
-
+        session['user_role'] = role
         return redirect(url_for('doctor_details' if role == 'doctor' else 'patient_details'))
 
     return render_template('signup.html')
