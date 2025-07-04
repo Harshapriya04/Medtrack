@@ -115,9 +115,12 @@ def login_required(f):
 @app.before_request
 def load_logged_in_user():
     user_email = session.get('user_email')
+    user_role = session.get('user_role')
     g.user = None
     g.doctor_details = None
     if user_email:
+        # fallback immediately after signup
+        g.user = {"email": user_email, "role": user_role}
         if dynamodb:
             user_table = get_user_table()
             try:
@@ -130,6 +133,7 @@ def load_logged_in_user():
                         g.doctor_details = doc_resp.get('Item')
             except Exception as e:
                 print(f"Error loading user from DynamoDB: {e}")
+
         else:
             # g.user = local_db['users'].get(user_email)
             # if g.user and g.user['role'] == 'doctor':
